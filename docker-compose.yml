@@ -1,0 +1,51 @@
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  activity-service:
+    build: ./services/activity
+    volumes:
+      - ./services/activity:/app
+      - activity-data:/app/data
+
+  bid-service:
+    build: ./services/bid
+    volumes:
+      - ./services/bid:/app
+      - bid-data:/app/data
+
+  listing-service:
+    build: ./services/listing
+    volumes:
+      - ./services/listing:/app
+      - listing-data:/app/data
+
+  auth-service:
+    build: ./services/auth
+    volumes:
+      - ./services/auth:/app
+      - auth-data:/app/data
+
+  api-gateway:
+    build: ./services/gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/gateway:/app
+    env_file:
+      - .env
+    depends_on:
+      - auth-service
+      - activity-service
+      - bid-service
+      - listing-service
+
+volumes:
+  activity-data:
+  bid-data:
+  listing-data:
+  auth-data:
