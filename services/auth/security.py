@@ -4,7 +4,6 @@ import bcrypt
 from jose import jwt
 from config import settings
 
-
 def hash_password(raw: str) -> str:
     return bcrypt.hashpw(raw.encode(), bcrypt.gensalt()).decode()
 
