@@ -19,14 +19,14 @@ from security import hash_password
 # (name, email, password, role)
 SEED_USERS = [
     # ---- admins ----
-    ("Admin One", "admin1@auctioneer.test", "Admin@123", "admin"),
-    ("Admin Two", "admin2@auctioneer.test", "Admin@123", "admin"),
+    ("Admin One", "admin1@gmail.com", "Admin@123", "admin"),
+    ("Admin Two", "admin2@gmail.com", "Admin@123", "admin"),
     # ---- regular users ----
-    ("User One",   "user1@auctioneer.test", "User@123", "user"),
-    ("User Two",   "user2@auctioneer.test", "User@123", "user"),
-    ("User Three", "user3@auctioneer.test", "User@123", "user"),
-    ("User Four",  "user4@auctioneer.test", "User@123", "user"),
-    ("User Five",  "user5@auctioneer.test", "User@123", "user"),
+    ("User One",   "user1@gmail.com", "User@123", "user"),
+    ("User Two",   "user2@gmail.com", "User@123", "user"),
+    ("User Three", "user3@gmail.com", "User@123", "user"),
+    ("User Four",  "user4@gmail.com", "User@123", "user"),
+    ("User Five",  "user5@gmail.com", "User@123", "user"),
 ]
 
 

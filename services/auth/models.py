@@ -1,13 +1,15 @@
-import uuid
 from datetime import datetime
 from typing import Optional
 from sqlmodel import SQLModel, Field, Relationship, Column
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, Integer, func
 
 class User(SQLModel, table=True):
     __tablename__ = 'users'
     
-    id: int | None = Field(default=None, primary_key=True)
+    id: int | None = Field(
+        default=None,
+        sa_column=Column(Integer, primary_key=True, autoincrement=True),
+    )
     name: str = Field(index=True, nullable=False)
     email: str = Field(unique=True, index=True, nullable=False)
     password_hash: str = Field(nullable=False)
@@ -21,7 +23,10 @@ class User(SQLModel, table=True):
 class RefreshToken(SQLModel, table=True):
     __tablename__ = 'refresh_tokens'
     
-    id: int | None = Field(default=None, primary_key=True)
+    id: int | None = Field(
+        default=None,
+        sa_column=Column(Integer, primary_key=True, autoincrement=True),
+    )
     user_id: int = Field(foreign_key='users.id', index=True, nullable=False)
     token_hash: str = Field(nullable=False)
     created_at: datetime = Field(sa_column=Column(DateTime, server_default=func.now()))
