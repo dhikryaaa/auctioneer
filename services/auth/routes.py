@@ -40,6 +40,7 @@ async def register(request: RegisterRequest, response: Response, db: AsyncSessio
         raise HTTPException(status_code=400, detail="Email already registered")
     
     user = User(
+        name=request.name,
         email=request.email,
         password_hash=hash_password(request.password),
     )
@@ -104,6 +105,7 @@ async def get_me(db: AsyncSession = Depends(get_db), user=Depends(get_current_us
     
     user_payload = UserOut(
         id=user.id,
+        name=user.name,
         email=user.email,
         role=user.role
     )
@@ -119,6 +121,7 @@ async def list_users(db: AsyncSession = Depends(get_db), user=Depends(require_ad
     
     user_payloads = [UserOut(
         id=user.id,
+        name=user.name,
         email=user.email,
         role=user.role
     ) for user in users]
