@@ -1,7 +1,7 @@
 import re
 import httpx
 from fastapi import HTTPException
-from jose import jwt, JWTError
+from jose import jwt, JWTError, ExpiredSignatureError
 from app.config import JWT_SECRET_KEY, JWT_ALGORITHM
 
 PUBLIC_URL_PATTERNS = [
@@ -21,6 +21,8 @@ PUBLIC_URL_PATTERNS = [
 def verify_jwt(token: str):
     try:
         return jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except ExpiredSignatureError:
+        return HTTPException(status_code=401, detail="Expired token")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
     
