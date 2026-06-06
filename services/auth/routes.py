@@ -129,7 +129,7 @@ async def list_users(db: AsyncSession = Depends(get_db), user=Depends(require_ad
     return user_payloads
 
 @router.get("/admin/user_status/{user_id}", response_model=UserStatusResponse)
-async def user_status(user_id: str, db: AsyncSession = Depends(get_db), user=Depends(require_admin)):
+async def user_status(user_id: int, db: AsyncSession = Depends(get_db), user=Depends(require_admin)):
     user = await db.get(User, user_id)
     
     if not user:

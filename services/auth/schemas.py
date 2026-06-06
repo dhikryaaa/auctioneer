@@ -15,7 +15,7 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 class UserOut(BaseModel):
-    id: str
+    id: int
     name: str
     email: EmailStr
     role: str
@@ -25,6 +25,6 @@ class UserOut(BaseModel):
         from_attributes = True
         
 class UserStatusResponse(BaseModel):
-    id: str
+    id: int
     name: str
     role: str

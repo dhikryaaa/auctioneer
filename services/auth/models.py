@@ -7,7 +7,7 @@ from sqlalchemy import DateTime, func
 class User(SQLModel, table=True):
     __tablename__ = 'users'
     
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True, nullable=False)
     email: str = Field(unique=True, index=True, nullable=False)
     password_hash: str = Field(nullable=False)
@@ -21,8 +21,8 @@ class User(SQLModel, table=True):
 class RefreshToken(SQLModel, table=True):
     __tablename__ = 'refresh_tokens'
     
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
-    user_id: str = Field(foreign_key='users.id', index=True, nullable=False)
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key='users.id', index=True, nullable=False)
     token_hash: str = Field(nullable=False)
     created_at: datetime = Field(sa_column=Column(DateTime, server_default=func.now()))
     expires_at: datetime = Field(nullable=False)
