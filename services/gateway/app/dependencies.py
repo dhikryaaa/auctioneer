@@ -22,7 +22,7 @@ def verify_jwt(token: str):
     try:
         return jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
     except ExpiredSignatureError:
-        return HTTPException(status_code=401, detail="Expired token")
+        raise HTTPException(status_code=401, detail="Expired token")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
     
