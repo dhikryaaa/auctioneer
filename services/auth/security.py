@@ -10,7 +10,7 @@ def hash_password(raw: str) -> str:
 def verify_password(raw: str, hashed: str) -> bool:
     return bcrypt.checkpw(raw.encode(), hashed.encode())
 
-def create_access_token(user_id: str, role: str) -> str:
+def create_access_token(user_id: int, role: str) -> str:
     payload = {
         "sub": user_id,
         "role": role,

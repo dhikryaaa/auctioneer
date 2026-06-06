@@ -107,7 +107,8 @@ async def get_me(db: AsyncSession = Depends(get_db), user=Depends(get_current_us
         id=user.id,
         name=user.name,
         email=user.email,
-        role=user.role
+        role=user.role,
+        created_at=user.created_at
     )
     
     return user_payload
@@ -123,7 +124,8 @@ async def list_users(db: AsyncSession = Depends(get_db), user=Depends(require_ad
         id=user.id,
         name=user.name,
         email=user.email,
-        role=user.role
+        role=user.role,
+        created_at=user.created_at
     ) for user in users]
     
     return user_payloads
@@ -137,5 +139,7 @@ async def user_status(user_id: int, db: AsyncSession = Depends(get_db), user=Dep
     
     return UserStatusResponse(
         id=user.id,
+        name=user.name,
         email=user.email,
-        role=user.role,    )
+        role=user.role,    
+    )

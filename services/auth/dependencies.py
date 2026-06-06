@@ -7,7 +7,12 @@ def get_current_user(request: Request) -> dict:
     if not user_id:
         raise HTTPException(status_code=401, detail="Unauthorized")
     
-    return {"user_id": user_id, "role": role}
+    try:
+        parsed_user_id = int(user_id)
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    return {"user_id": parsed_user_id, "role": role}
 
 def require_admin(user: dict = Depends(get_current_user)) -> dict:
     if user["role"] != "admin":
