@@ -32,7 +32,16 @@ async def build_openapi():
     global merged_openapi
 
     paths = {}
-    components = {"schemas": {}}
+    components = {
+        "schemas": {},
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    }
 
     async with httpx.AsyncClient() as client:
         tasks = [
@@ -73,6 +82,14 @@ async def build_openapi():
                 op_id_suffix = path.strip("/").replace("/", "_").replace("{", "").replace("}", "") or "root"
                 details["operationId"] = f"{service_name}_{method}_{op_id_suffix}"
 
+                # /{service_name}/path eg. /auth/login
+                path = f"/{service_name}{path}"
+                
+                if is_public_endpoint(path, method):
+                    details["security"] = []
+                else:
+                    details["security"] = [{"BearerAuth": []}]
+                
                 new_methods[method] = _rewrite_refs(details, ref_map)
 
             paths[new_path] = new_methods
@@ -168,12 +185,13 @@ async def gateway(service: str, path: str, request: Request):
     
     try:
         data = response.json()
-    except:
+    except Exception:
         data = response.text
         
     return JSONResponse(
         status_code=response.status_code,
-        content=data
+        content=data,
+        headers=response.headers
     )
 
 @app.get('/')
