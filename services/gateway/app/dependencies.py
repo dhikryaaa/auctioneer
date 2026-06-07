@@ -8,6 +8,7 @@ from app.config import JWT_SECRET_KEY, JWT_ALGORITHM
 PUBLIC_URL_PATTERNS = [
     (r"^/auth/login$", ["POST"]),
     (r"^/auth/register$", ["POST"]),
+    (r"^/auth/refresh$", ["POST"]),
     
     # /auctions , /auctions/{id}
     (r"^/auctions(/.*)?$", ["GET"]),
