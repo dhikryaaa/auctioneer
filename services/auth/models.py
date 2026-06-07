@@ -1,35 +1,33 @@
 from datetime import datetime
-from typing import Optional
-from sqlmodel import SQLModel, Field, Relationship, Column
-from sqlalchemy import DateTime, Integer, func
+from typing import Optional, List
+from sqlalchemy import String, Integer, DateTime, ForeignKey, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from database import Base
 
-class User(SQLModel, table=True):
+
+class User(Base):
     __tablename__ = 'users'
-    
-    id: int | None = Field(
-        default=None,
-        sa_column=Column(Integer, primary_key=True, autoincrement=True),
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String, index=True, nullable=False)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
+    role: Mapped[str] = mapped_column(String, default='user')
+    created_at: Mapped[Optional[datetime]] = mapped_column(DateTime, server_default=func.now())
+
+    refresh_tokens: Mapped[List["RefreshToken"]] = relationship(
+        back_populates='user',
+        cascade="all, delete-orphan"
     )
-    name: str = Field(index=True, nullable=False)
-    email: str = Field(unique=True, index=True, nullable=False)
-    password_hash: str = Field(nullable=False)
-    role: str = Field(default='user')
-    created_at: datetime = Field(sa_column=Column(DateTime, server_default=func.now()))
-    refresh_token: list["RefreshToken"] = Relationship(
-        back_populates='user', 
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
-    )
-    
-class RefreshToken(SQLModel, table=True):
+
+
+class RefreshToken(Base):
     __tablename__ = 'refresh_tokens'
-    
-    id: int | None = Field(
-        default=None,
-        sa_column=Column(Integer, primary_key=True, autoincrement=True),
-    )
-    user_id: int = Field(foreign_key='users.id', index=True, nullable=False)
-    token_hash: str = Field(nullable=False)
-    created_at: datetime = Field(sa_column=Column(DateTime, server_default=func.now()))
-    expires_at: datetime = Field(nullable=False)
-    user: Optional[User] = Relationship(back_populates='refresh_token')
-    
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), index=True, nullable=False)
+    token_hash: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[Optional[datetime]] = mapped_column(DateTime, server_default=func.now())
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    user: Mapped[Optional["User"]] = relationship(back_populates='refresh_tokens')

@@ -14,7 +14,7 @@ PUBLIC_URL_PATTERNS = [
     # /bids/{id}
     (r"^/bids/[^/]+$", ["GET"]),
     
-    (r"^/docs(/.*)?$", ["GET"]),
+    (r"^/docs(/.*)?$", ["GET"]), 
     (r"^/openapi\.json$", ["GET"]),
 ]
 
