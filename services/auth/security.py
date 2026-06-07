@@ -12,7 +12,7 @@ def verify_password(raw: str, hashed: str) -> bool:
 
 def create_access_token(user_id: int, role: str) -> str:
     payload = {
-        "sub": user_id,
+        "sub": str(user_id),
         "role": role,
         "exp": datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_MINUTES)
     }
