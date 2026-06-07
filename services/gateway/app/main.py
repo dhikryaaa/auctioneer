@@ -17,6 +17,16 @@ app = FastAPI(
 
 merged_openapi = {}
 
+def _rewrite_refs(obj, ref_map):
+    """Recursively rewrite $ref values in an OpenAPI structure."""
+    if isinstance(obj, dict):
+        if "$ref" in obj and obj["$ref"] in ref_map:
+            obj["$ref"] = ref_map[obj["$ref"]]
+        return {k: _rewrite_refs(v, ref_map) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [_rewrite_refs(item, ref_map) for item in obj]
+    return obj
+
 @app.on_event("startup")
 async def build_openapi():
     global merged_openapi
@@ -31,9 +41,17 @@ async def build_openapi():
         ]
         results = await asyncio.gather(*tasks)
 
-    for service_name, schema in results:
+    
+    for service_name, schema in results: # type: ignore[reportGeneralTypeIssues]
         if not schema:
             continue
+
+        # Build a mapping of original $ref → prefixed $ref for this service
+        schema_names = list(schema.get("components", {}).get("schemas", {}).keys())
+        ref_map = {
+            f"#/components/schemas/{name}": f"#/components/schemas/{service_name}_{name}"
+            for name in schema_names
+        }
 
         for path, methods in schema.get("paths", {}).items():
             new_path = f"/{service_name}{path}"
@@ -42,7 +60,7 @@ async def build_openapi():
 
             # Carry over path-level parameters (e.g. shared {id} param)
             if "parameters" in methods:
-                new_methods["parameters"] = methods["parameters"]
+                new_methods["parameters"] = _rewrite_refs(methods["parameters"], ref_map)
 
             for method, details in methods.items():
                 if method == "parameters":
@@ -55,14 +73,14 @@ async def build_openapi():
                 op_id_suffix = path.strip("/").replace("/", "_").replace("{", "").replace("}", "") or "root"
                 details["operationId"] = f"{service_name}_{method}_{op_id_suffix}"
 
-                new_methods[method] = details
+                new_methods[method] = _rewrite_refs(details, ref_map)
 
             paths[new_path] = new_methods
 
         # Merge component schemas, prefixing names to avoid collisions
         for schema_name, schema_def in schema.get("components", {}).get("schemas", {}).items():
             prefixed = f"{service_name}_{schema_name}"
-            components["schemas"][prefixed] = schema_def
+            components["schemas"][prefixed] = _rewrite_refs(schema_def, ref_map)
 
     merged_openapi = {
         "openapi": "3.0.0",

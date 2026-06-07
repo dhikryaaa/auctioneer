@@ -1,4 +1,5 @@
 import re
+import asyncio
 import httpx
 from fastapi import HTTPException
 from jose import jwt, JWTError, ExpiredSignatureError
@@ -32,13 +33,18 @@ def is_public_endpoint(path: str, method: str) -> bool:
         for pattern, methods in PUBLIC_URL_PATTERNS
     )
 
-async def fetch_schema(client, name, url):
-    try:
-        res = await client.get(f"{url}/openapi.json")
-        return name, res.json()
-    except Exception as e:
-        print(f"[ERROR] {name}: {e}")
-        return name, {}
+async def fetch_schema(client, name, url, retries=5, delay=2):
+    for attempt in range(retries):
+        try:
+            res = await client.get(f"{url}/openapi.json", timeout=5)
+            return name, res.json()
+        except Exception as e:
+            if attempt < retries - 1:
+                print(f"[WARN] {name}: attempt {attempt + 1} failed ({e}), retrying in {delay}s...")
+                await asyncio.sleep(delay)
+            else:
+                print(f"[ERROR] {name}: all {retries} attempts failed ({e})")
+                return name, {}
     
     
 async def forward_request(service_url: str, path: str, method: str, body=None, headers=None):
