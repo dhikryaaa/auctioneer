@@ -27,4 +27,5 @@ class UserOut(BaseModel):
 class UserStatusResponse(BaseModel):
     id: int
     name: str
+    email: str
     role: str

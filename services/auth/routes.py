@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
-from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
 
 from database import get_db
@@ -9,14 +9,15 @@ from schemas import RegisterRequest, LoginRequest, TokenResponse, UserOut, UserS
 from security import (hash_password, verify_password, create_access_token, new_refresh_token, hash_refresh_token)
 from dependencies import get_current_user, require_admin
 from config import settings
+from typing import cast
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter()
 
 async def issue_refresh(db: AsyncSession, user: User, response: Response):
     raw_token, digest = new_refresh_token()
     
     db.add(RefreshToken(
-        user_id=user.id, 
+        user_id=cast(int, user.id), 
         token_hash=digest,
         expires_at=datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_DAYS)
     ))
@@ -35,8 +36,8 @@ async def issue_refresh(db: AsyncSession, user: User, response: Response):
 # Public endpoints
 @router.post("/register", response_model=TokenResponse, status_code=201)
 async def register(request: RegisterRequest, response: Response, db: AsyncSession = Depends(get_db)):
-    existing_user = await db.exec(select(User).where(User.email == request.email))
-    if existing_user.first():
+    result = await db.execute(select(User).where(User.email == request.email))
+    if result.scalars().first():
         raise HTTPException(status_code=400, detail="Email already registered")
     
     user = User(
@@ -55,8 +56,8 @@ async def register(request: RegisterRequest, response: Response, db: AsyncSessio
 
 @router.post("/login", response_model=TokenResponse)
 async def login(request: LoginRequest, response: Response, db: AsyncSession = Depends(get_db)):
-    user_result = await db.exec(select(User).where(User.email == request.email))
-    user = user_result.first()
+    result = await db.execute(select(User).where(User.email == request.email))
+    user = result.scalars().first()
     
     if not user or not verify_password(request.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -70,13 +71,16 @@ async def refresh(response: Response, db: AsyncSession = Depends(get_db), refres
     if not refresh_token:
         raise HTTPException(status_code=401, detail="Unauthorized")
     
-    row = await db.exec(select(RefreshToken).where(RefreshToken.token_hash == hash_refresh_token(refresh_token)))
-    token = row.first()
+    result = await db.execute(select(RefreshToken).where(RefreshToken.token_hash == hash_refresh_token(refresh_token)))
+    token = result.scalars().first()
     
     if not token or token.expires_at < datetime.utcnow():
         raise HTTPException(status_code=401, detail="Unauthorized")
     
     user = await db.get(User, token.user_id)
+    
+    if user is None:
+        return HTTPException(status_code=404, detail='User not found')
     
     await db.delete(token)
     await db.commit()
@@ -88,8 +92,8 @@ async def refresh(response: Response, db: AsyncSession = Depends(get_db), refres
 @router.post("/logout")
 async def logout(response: Response, db: AsyncSession = Depends(get_db), user=Depends(get_current_user), refresh_token: str | None = Cookie(default=None)):
     if refresh_token:
-        row = await db.exec(select(RefreshToken).where(RefreshToken.token_hash == hash_refresh_token(refresh_token)))
-        token = row.first()
+        result = await db.execute(select(RefreshToken).where(RefreshToken.token_hash == hash_refresh_token(refresh_token)))
+        token = result.scalars().first()
         
         if token:
             await db.delete(token)
@@ -102,6 +106,9 @@ async def logout(response: Response, db: AsyncSession = Depends(get_db), user=De
 @router.get("/me", response_model=UserOut)
 async def get_me(db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     user = await db.get(User, user["user_id"])
+    
+    if user is None:
+        return HTTPException(status_code=404, detail='User not found')
     
     user_payload = UserOut(
         id=user.id,
@@ -117,8 +124,8 @@ async def get_me(db: AsyncSession = Depends(get_db), user=Depends(get_current_us
 # Admin-only endpoint
 @router.get("/admin/users", response_model=list[UserOut])
 async def list_users(db: AsyncSession = Depends(get_db), user=Depends(require_admin)):
-    result = await db.exec(select(User))
-    users = result.all()
+    result = await db.execute(select(User))
+    users = result.scalars().all()
     
     user_payloads = [UserOut(
         id=user.id,

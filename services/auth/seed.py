@@ -9,7 +9,7 @@ Run from /services/auth (venv active, AFTER migrations have been applied):
     python seed.py
 """
 import asyncio
-from sqlmodel import select
+from sqlalchemy import select
 
 from database import SessionLocal
 from models import User
@@ -34,9 +34,10 @@ async def seed() -> None:
     async with SessionLocal() as session:
         created, skipped = 0, 0
         for name, email, password, role in SEED_USERS:
-            existing = (await session.exec(
+            result = await session.execute(
                 select(User).where(User.email == email)
-            )).first()
+            )
+            existing = result.scalars().first()
 
             if existing:
                 skipped += 1
