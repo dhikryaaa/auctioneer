@@ -11,7 +11,7 @@ from dependencies import get_current_user, require_admin
 from config import settings
 from typing import cast
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter()
 
 async def issue_refresh(db: AsyncSession, user: User, response: Response):
     raw_token, digest = new_refresh_token()
@@ -79,6 +79,9 @@ async def refresh(response: Response, db: AsyncSession = Depends(get_db), refres
     
     user = await db.get(User, token.user_id)
     
+    if user is None:
+        return HTTPException(status_code=404, detail='User not found')
+    
     await db.delete(token)
     await db.commit()
     await issue_refresh(db, user, response)
@@ -103,6 +106,9 @@ async def logout(response: Response, db: AsyncSession = Depends(get_db), user=De
 @router.get("/me", response_model=UserOut)
 async def get_me(db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     user = await db.get(User, user["user_id"])
+    
+    if user is None:
+        return HTTPException(status_code=404, detail='User not found')
     
     user_payload = UserOut(
         id=user.id,
