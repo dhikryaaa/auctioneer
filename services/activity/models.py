@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
-from .database import Base
+from database import Base
 
 class UserListing(Base):
     __tablename__ = "user_listings"
