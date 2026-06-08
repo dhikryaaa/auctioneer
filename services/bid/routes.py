@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 # ── POST /bids — place a bid (user) ──────────────────────────────
-@router.post("", response_model=BidResponse, status_code=201)
+@router.post("/", response_model=BidResponse, status_code=201)
 async def place_bid(
     bid: BidCreate,
     user: dict = Depends(get_current_user),
@@ -87,7 +87,7 @@ async def auction_bids(auction_id: int, db: AsyncSession = Depends(get_db)):
 
 
 # ── GET /bids — admin: every bid in the system ───────────────────
-@router.get("", response_model=list[BidResponse])
+@router.get("/", response_model=list[BidResponse])
 async def all_bids(admin: dict = Depends(require_admin), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Bid).order_by(Bid.placed_at.desc()))
     return result.scalars().all()
