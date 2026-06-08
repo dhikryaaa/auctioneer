@@ -62,7 +62,7 @@ async def on_auction_created(data: dict):
 # ── bid.placed → new highest bidder, previous one flips to outbid ────
 async def on_bid_placed(data: dict):
     auction_id = int(data["auction_id"])
-    bidder_id  = int(data["user_id"])
+    bidder_id  = int(data["bidder_id"])
     amount     = data["amount"]
     title      = data["title"]
 

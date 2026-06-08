@@ -10,7 +10,9 @@ class AuctionOut(BaseModel):
     description: Optional[str]
     starting_price: int
     current_price: int
+    current_bidder_id: int | None
     status: AuctionStatus
+    version: int
     ends_at: datetime
     created_at: datetime
     

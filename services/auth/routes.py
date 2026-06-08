@@ -151,10 +151,3 @@ async def user_status(user_id: int, db: AsyncSession = Depends(get_db), user=Dep
         role=user.role,    
     )
     
-@router.get("/health")
-async def health_check():
-    return {"status": "Auth service is Running"}
-
-@router.get("/")
-async def root():
-    return {"message": "Welcome to the Auth Service"}
