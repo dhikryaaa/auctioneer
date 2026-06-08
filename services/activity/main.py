@@ -15,11 +15,3 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Activity Service", lifespan=lifespan)
 app.include_router(router)
-
-app.get("/health")
-async def health_check():
-    return {"status": "Activity service is Running"}
-
-app.get("/")
-async def root():
-    return {"message": "Welcome to the Activity Service"}

@@ -44,3 +44,11 @@ async def my_bids(
     query = select(UserBid).where(UserBid.user_id == user["user_id"])
     rows = (await db.execute(query)).scalars().all()
     return rows
+
+@router.get("/health")
+async def health_check():
+    return {"status": "Activity service is Running"}
+
+@router.get("/")
+async def root():
+    return {"message": "Welcome to the Activity Service"}

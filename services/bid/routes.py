@@ -92,3 +92,12 @@ async def auction_bids(auction_id: int, db: AsyncSession = Depends(get_db)):
 async def all_bids(admin: dict = Depends(require_admin), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Bid).order_by(Bid.placed_at.desc()))
     return result.scalars().all()
+
+
+@router.get("/health")
+async def health_check():
+    return {"status": "Bid service is Running"}
+
+@router.get("/")
+async def root():
+    return {"message": "Welcome to the Bid Service"}
