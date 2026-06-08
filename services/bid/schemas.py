@@ -10,7 +10,7 @@ class BidResponse(BaseModel):
     auction_id: int
     bidder_id: int
     amount: int
-    created_at: datetime
+    placed_at: datetime
 
     class Config:
         from_attributes = True

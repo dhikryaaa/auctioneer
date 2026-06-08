@@ -9,4 +9,4 @@ class Bid(Base):
     auction_id = Column(Integer, nullable=False, index=True)
     bidder_id  = Column(Integer, nullable=False, index=True)
     amount     = Column(Integer, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    placed_at  = Column(DateTime, default=datetime.utcnow, nullable=False)
