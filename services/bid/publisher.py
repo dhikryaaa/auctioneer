@@ -3,7 +3,7 @@ import aio_pika
 from rabbitmq import get_exchange
 from datetime import datetime
 
-async def publish_bid_placed(auction_id: int, title: str, bidder_id: int, amount: int, previous_bidder_id: int, placed_at: datetime):
+async def publish_bid_placed(auction_id: int, title: str, bidder_id: int, amount: int, previous_bidder_id: int | None, placed_at: datetime):
     exchange = get_exchange()
     await exchange.publish(
         aio_pika.Message(
