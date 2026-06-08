@@ -2,7 +2,7 @@ import httpx
 from fastapi import HTTPException
 from config import settings
 
-async def get_auction(auction_id: str) -> dict | None:
+async def get_auction(auction_id: int) -> dict | None:
     async with httpx.AsyncClient(timeout=5.0) as client:
         try:
             res = await client.get(f"{settings.LISTING_SERVICE_URL}/auctions/{auction_id}")
@@ -16,7 +16,7 @@ async def get_auction(auction_id: str) -> dict | None:
     
     return res.json()
 
-async def accept_bid_on_auction(auction_id: str, new_price: float, expected_version: int) -> bool:
+async def accept_bid_on_auction(auction_id: int, new_price: int, expected_version: int) -> bool:
     async with httpx.AsyncClient(timeout=5.0) as client:
         try:
             res = await client.patch(
@@ -33,7 +33,7 @@ async def accept_bid_on_auction(auction_id: str, new_price: float, expected_vers
     
     return True
 
-async def is_user_banned(user_id: str) -> bool:
+async def is_user_banned(user_id: int) -> bool:
     async with httpx.AsyncClient(timeout=5.0) as client:
         try:
             res = await client.get(f"{settings.AUTH_SERVICE_URL}/users/{user_id}")
