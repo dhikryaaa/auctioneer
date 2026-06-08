@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-
+from observability import instrument_app
 from database import init_db
 from consumer import start_consumer
 from rabbitmq import close_connection

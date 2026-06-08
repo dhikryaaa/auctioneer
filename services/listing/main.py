@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import rabbitmq
-from database import init_db
+from database import init_db, engine
 from routes import router
+from observability import instrument_app
 from scheduler import scheduler, close_expired_auctions
 from consumer import handle_bid_placed
 import httpx
@@ -47,3 +48,4 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title='Listing Service', lifespan=lifespan)
 app.include_router(router)
+instrument_app(app, service_name="listing-service", engine=engine)

@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 import asyncio
 from app.config import SERVICES
 from app.dependencies import verify_jwt, is_public_endpoint, fetch_schema, forward_request
+from app.observability import instrument_app
 
 RESERVED = {"docs", "openapi.json", "redoc"}
 
@@ -202,4 +203,6 @@ async def gateway(service: str, path: str, request: Request):
 
 @app.get('/')
 async def root():
-    return {'message': 'Hello World'}   
+    return {'message': 'Hello World'}
+
+instrument_app(app, service_name="api-gateway")
