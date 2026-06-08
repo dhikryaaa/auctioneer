@@ -11,5 +11,7 @@ class Settings(BaseSettings):
     COOKIES_SECURE: bool = False
     LISTING_SERVICE_URL: str
     AUTH_SERVICE_URL: str
+    EXCHANGE_NAME: str = "auctioneer"
+    RABBITMQ_URL: str
         
 settings = Settings() # type: ignore
