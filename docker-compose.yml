@@ -1,3 +1,4 @@
+
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -11,9 +12,14 @@ services:
 
   activity-service:
     build: ./services/activity
+    env_file:
+      - .env
     volumes:
       - ./services/activity:/app
       - ./services/activity/data:/app/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   bid-service:
     build: ./services/bid
@@ -58,3 +64,4 @@ services:
       - activity-service
       - bid-service
       - listing-service
+
