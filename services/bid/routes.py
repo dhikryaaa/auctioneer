@@ -82,4 +82,3 @@ async def all_bids(admin: dict = Depends(require_admin), db: AsyncSession = Depe
     result = await db.execute(select(Bid).order_by(Bid.placed_at.desc()))
     return result.scalars().all()
 
-
