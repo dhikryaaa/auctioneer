@@ -108,7 +108,7 @@ async def get_me(db: AsyncSession = Depends(get_db), user=Depends(get_current_us
     user = await db.get(User, user["user_id"])
     
     if user is None:
-        return HTTPException(status_code=404, detail='User not found')
+        raise HTTPException(status_code=404, detail='User not found')
     
     user_payload = UserOut(
         id=user.id,
@@ -150,3 +150,4 @@ async def user_status(user_id: int, db: AsyncSession = Depends(get_db), user=Dep
         email=user.email,
         role=user.role,    
     )
+    

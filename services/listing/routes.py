@@ -149,3 +149,4 @@ async def force_delete_listing_admin(
     await publish_auction_deleted(auction)
     
     return { 'message': 'Sucessfully deleted auction', 'auction': auction}
+

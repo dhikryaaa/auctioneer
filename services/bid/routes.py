@@ -28,10 +28,6 @@ async def place_bid(
     if auction is None:
         raise HTTPException(status_code=404, detail="Auction not found")
 
-    # 2. banned users can't bid (HTTP -> auth) — your RBAC feature
-    if await clients.is_user_banned(user["user_id"]):
-        raise HTTPException(status_code=403, detail="You are banned from bidding")
-
     # 3. can't bid on your own auction
     if auction["owner_id"] == user["user_id"]:
         raise HTTPException(status_code=400, detail="Cannot bid on your own auction")
@@ -44,13 +40,6 @@ async def place_bid(
     if bid.amount <= int(auction["current_price"]):
         raise HTTPException(status_code=400, detail="Bid too low")
 
-    # 6. atomic accept on listing (optimistic lock). False = outrun by a concurrent bid
-    accepted = await clients.accept_bid_on_auction(
-        auction_id, bid.amount, auction["version"]
-    )
-    if not accepted:
-        raise HTTPException(status_code=409, detail="Bid was outrun, please retry")
-
     # 7. record the bid in our own ledger
     new_bid = Bid(auction_id=bid.auction_id, bidder_id=user["user_id"], amount=bid.amount)
     db.add(new_bid)
@@ -62,6 +51,7 @@ async def place_bid(
         auction_id=auction_id,
         title=auction["title"],
         bidder_id=user["user_id"],
+        version=auction["version"] + 1,
         amount=bid.amount,
         previous_bidder_id=auction.get("current_bidder_id"),
         placed_at=new_bid.placed_at,
@@ -91,3 +81,4 @@ async def auction_bids(auction_id: int, db: AsyncSession = Depends(get_db)):
 async def all_bids(admin: dict = Depends(require_admin), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Bid).order_by(Bid.placed_at.desc()))
     return result.scalars().all()
+
