@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_MINUTES: int = 15
     REFRESH_TOKEN_DAYS: int = 7
     COOKIES_SECURE: bool = False
+    LISTING_SERVICE_URL: str
+    AUTH_SERVICE_URL: str
     EXCHANGE_NAME: str = "auctioneer"
+    RABBITMQ_URL: str
         
 settings = Settings() # type: ignore
