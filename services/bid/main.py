@@ -1,4 +1,3 @@
-# services/bid/main.py
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
@@ -15,3 +14,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Bid Service", lifespan=lifespan)
 app.include_router(router)
+
+app.get("/health")
+async def health_check():
+    return {"status": "Bid service is Running"}
+
+app.get("/")
+async def root():
+    return {"message": "Welcome to the Bid Service"}

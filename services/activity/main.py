@@ -1,10 +1,25 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-app = FastAPI(title='Activity Service')
 
-@app.get('/')
+from database import init_db
+from consumer import start_consumer
+from rabbitmq import close_connection
+from routes import router
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    await start_consumer()   # registers the consumer; FastAPI's loop keeps it alive
+    yield
+    await close_connection()
+
+app = FastAPI(title="Activity Service", lifespan=lifespan)
+app.include_router(router)
+
+app.get("/health")
+async def health_check():
+    return {"status": "Activity service is Running"}
+
+app.get("/")
 async def root():
-    return {'message': 'Hello World'}
-
-@app.get('/lool')
-async def lool():
-    return {'message': 'Hello LOOOL'}
+    return {"message": "Welcome to the Activity Service"}

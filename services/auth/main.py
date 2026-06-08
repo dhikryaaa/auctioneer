@@ -11,10 +11,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Auth Service", lifespan=lifespan)
 app.include_router(router)
 
-@app.get("/health", tags=["Health"])
+@app.get("/health")
 async def health_check():
     return {"status": "Auth service is Running"}
 
-@app.get("/", tags=["Root"])
+@app.get("/")
 async def root():
     return {"message": "Welcome to the Auth Service"}
