@@ -1,0 +1,34 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8000']
+        labels:
+          service: 'api-gateway'
+
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['auth-service:8000']
+        labels:
+          service: 'auth-service'
+
+  - job_name: 'activity-service'
+    static_configs:
+      - targets: ['activity-service:8000']
+        labels:
+          service: 'activity-service'
+
+  - job_name: 'bid-service'
+    static_configs:
+      - targets: ['bid-service:8000']
+        labels:
+          service: 'bid-service'
+
+  - job_name: 'listing-service'
+    static_configs:
+      - targets: ['listing-service:8000']
+        labels:
+          service: 'listing-service'
