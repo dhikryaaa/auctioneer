@@ -1,10 +1,17 @@
+# services/bid/main.py
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-app = FastAPI(title='Bidding Service')
 
-@app.get('/')
-async def root():
-    return {'message': 'Hello World'}
+from database import init_db
+from rabbitmq import init_rabbitmq, close_rabbitmq
+from routes import router
 
-@app.get('/{auction_id}')
-async def get_bid_at_auction(auction_id: str):
-    return {'message': f'100 bids at auction {auction_id}'}
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    await init_rabbitmq()
+    yield
+    await close_rabbitmq()
+
+app = FastAPI(title="Bid Service", lifespan=lifespan)
+app.include_router(router)
