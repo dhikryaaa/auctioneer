@@ -2,27 +2,46 @@
 services:
   rabbitmq:
     image: rabbitmq:3-management
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "status"]
     ports:
       - "5672:5672"
       - "15672:15672"
+    env_file:
+      - .env
 
   activity-service:
     build: ./services/activity
+    env_file:
+      - .env
     volumes:
       - ./services/activity:/app
       - ./services/activity/data:/app/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   bid-service:
     build: ./services/bid
+    env_file:
+      - .env
     volumes:
       - ./services/bid:/app
       - ./services/bid/data:/app/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   listing-service:
     build: ./services/listing
+    env_file:
+      - .env
     volumes:
       - ./services/listing:/app
       - ./services/listing/data:/app/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   auth-service:
     build: ./services/auth
@@ -45,4 +64,4 @@ services:
       - activity-service
       - bid-service
       - listing-service
-
+

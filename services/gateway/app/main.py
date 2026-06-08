@@ -1,3 +1,4 @@
+from email import header
 import os
 import httpx
 from fastapi import FastAPI, Request, HTTPException
@@ -187,12 +188,17 @@ async def gateway(service: str, path: str, request: Request):
         data = response.json()
     except Exception:
         data = response.text
-        
-    return JSONResponse(
+    
+    json_response = JSONResponse(
         status_code=response.status_code,
-        content=data,
-        headers=response.headers
+        content=data
     )
+
+    for key, value in response.headers.items():
+        if key.lower() == "set-cookie":
+            json_response.headers.append(key, value)
+
+    return json_response
 
 @app.get('/')
 async def root():
