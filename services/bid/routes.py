@@ -62,6 +62,7 @@ async def place_bid(
         auction_id=auction_id,
         title=auction["title"],
         bidder_id=user["user_id"],
+        version=auction["version"] + 1,
         amount=bid.amount,
         previous_bidder_id=auction.get("current_bidder_id"),
         placed_at=new_bid.placed_at,
