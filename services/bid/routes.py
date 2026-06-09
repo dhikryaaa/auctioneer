@@ -33,7 +33,10 @@ async def place_bid(
         raise HTTPException(status_code=400, detail="Cannot bid on your own auction")
 
     # 4. auction must still be open
-    if auction["status"] != "active" or datetime.fromisoformat(auction["ends_at"]) < datetime.now(timezone.utc):
+    ends_at = datetime.fromisoformat(auction["ends_at"])
+    if ends_at.tzinfo is None:
+        ends_at = ends_at.replace(tzinfo=timezone.utc)
+    if auction["status"] != "active" or ends_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Auction has ended")
 
     # 5. bid must beat current price

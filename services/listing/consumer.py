@@ -34,12 +34,10 @@ async def on_bid_placed(body: bytes):
         )
 
         result = await db.execute(stmt)
+        updated_id = result.scalar_one_or_none()
 
-    updated_id = result.scalar_one_or_none()
+        if updated_id is None:
+            print("Stale or out-of-order event")
+            return
 
-    if updated_id is None:
-        print("Stale or out-of-order event")
-        await db.rollback()
-        return
-
-    await db.commit()
+        await db.commit()
