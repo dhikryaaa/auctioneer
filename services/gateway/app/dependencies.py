@@ -13,8 +13,8 @@ PUBLIC_URL_PATTERNS = [
     # /auctions , /auctions/{id}
     (r"^/auctions(/.*)?$", ["GET"]),
     
-    # /bids/{id}
-    (r"^/bids/[^/]+$", ["GET"]),
+    # /bids/{auction_id} — numeric only, so /bids/me stays protected
+    (r"^/bids/\d+$", ["GET"]),
     
     (r"^/docs(/.*)?$", ["GET"]), 
     (r"^/openapi\.json$", ["GET"]),
